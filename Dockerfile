@@ -30,5 +30,13 @@ RUN npm install && npm run build
 ENV PORT=10000
 EXPOSE 10000
 
-# Автоматически создаем .env из шаблона, генерируем ключ и запускаем сервер
-CMD cp .env.example .env && php artisan key:generate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=10000
+# Создаем файл .env с дефолтными настройками, генерируем ключ и запускаем сервер
+CMD echo "APP_NAME=Laravel" > .env \
+    && echo "APP_ENV=production" >> .env \
+    && echo "APP_DEBUG=true" >> .env \
+    && echo "APP_URL=http://localhost" >> .env \
+    && php artisan key:generate --force \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan serve --host=0.0.0.0 --port=10000
+    
