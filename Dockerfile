@@ -22,7 +22,7 @@ WORKDIR /var/www/html
 # Копируем проект
 COPY . .
 
-# Установка зависимостей с игнорированием платформенных ошибок (на всякий случай) и сборка фронта
+# Установка зависимостей и сборка фронта
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-intl
 RUN npm install && npm run build
 
@@ -30,5 +30,5 @@ RUN npm install && npm run build
 ENV PORT=10000
 EXPOSE 10000
 
-# Генерация ключа, кеширование и запуск сервера
-CMD php artisan key:generate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=10000
+# Автоматически создаем .env из шаблона, генерируем ключ и запускаем сервер
+CMD cp .env.example .env && php artisan key:generate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=10000
