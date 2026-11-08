@@ -30,7 +30,7 @@ RUN npm install && npm run build
 ENV PORT=10000
 EXPOSE 10000
 
-# Автонастройка .env, генерация ключей (APP_KEY и JWT_SECRET), очистка кэша и старт сервера
+# Создаем .env только с ключами безопасности, а базу оставляем на переменные Render
 CMD echo "APP_NAME=Laravel" > .env \
     && echo "APP_ENV=production" >> .env \
     && echo "APP_DEBUG=true" >> .env \
@@ -42,5 +42,6 @@ CMD echo "APP_NAME=Laravel" > .env \
     && composer dump-autoload \
     && php artisan config:clear \
     && php artisan cache:clear \
+    && php artisan migrate --force \
     && php artisan serve --host=0.0.0.0 --port=10000
     
