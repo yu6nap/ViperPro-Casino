@@ -10,19 +10,19 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure intl \
     && docker-php-ext-install zip pdo pdo_mysql intl
 
-# Установка Node.js (версия 20, нужна для сборки Vite и фронтенда)
+# Установка Node.js (версия 20 для сборки Vite)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# Установка официального Composer
+# Установка Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Копируем проект
+# Копируем файлы проекта
 COPY . .
 
-# Установка зависимостей и сборка фронта
+# Установка зависимостей бэкенда и сборка фронтенда
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-intl
 RUN npm install && npm run build
 
@@ -30,13 +30,15 @@ RUN npm install && npm run build
 ENV PORT=10000
 EXPOSE 10000
 
-# Создаем полноценный .env с переменной APP_KEY, фиксим автозагрузку классов, кешируем и запускаем
+# Автонастройка .env, генерация ключей (APP_KEY и JWT_SECRET), очистка кэша и старт сервера
 CMD echo "APP_NAME=Laravel" > .env \
     && echo "APP_ENV=production" >> .env \
     && echo "APP_DEBUG=true" >> .env \
     && echo "APP_URL=http://localhost" >> .env \
     && echo "APP_KEY=" >> .env \
+    && echo "JWT_SECRET=" >> .env \
     && php artisan key:generate --force \
+    && php artisan jwt:secret --force \
     && composer dump-autoload \
     && php artisan config:clear \
     && php artisan cache:clear \
